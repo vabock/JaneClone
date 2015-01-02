@@ -66,6 +66,8 @@ private:
      wxAuiManager m_mgr;
      // 画像を載せるノートブック
      wxAuiNotebook* thumbnailNoteBook;
+     // ポップアップメニュー
+     wxMenu popupMenu;
 
      /// Copy constructor
      JaneCloneImageViewer(const JaneCloneImageViewer& rhs);

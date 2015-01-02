@@ -21,8 +21,7 @@
  *	Hiroyuki Nagata <newserver002@gmail.com>
  */
 
-#include <array>
-#include <algorithm>
+#include "janecloneuiutil.hpp"
 #include "janecloneimageviewer.hpp"
 
 #ifndef __WXMSW__
@@ -77,6 +76,44 @@ JaneCloneImageViewer::JaneCloneImageViewer(wxWindow* parent, int id, const wxStr
 					   wxDefaultSize, wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_WINDOWLIST_BUTTON);
      // ステータスバー設置
      CreateStatusBar(3);
+
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_OneThumbnailTabClose));	// このタブを閉じる
+     popupMenu.Append(wxID_ANY, wxT("エラーのタブを閉じる"));
+     popupMenu.AppendSeparator();
+     popupMenu.Append(wxID_ANY, wxT("このタブ以外を閉じる"));
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_AllThumbnailTabClose));	// すべてのタブを閉じる
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_AllLeftThumbnailTabClose));	// これより左を閉じる
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_AllRightThumbnailTabClose));	// これより右を閉じる
+     popupMenu.AppendSeparator();
+     popupMenu.Append(wxID_ANY, wxT("マーク/解除"));
+     popupMenu.Append(wxID_ANY, wxT("すべてマーク"));
+     popupMenu.Append(wxID_ANY, wxT("すべてマーク解除"));
+     popupMenu.AppendSeparator();
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_SaveAsImages));	// 名前を付けて保存
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_SaveAsImagesAll));	// 全て保存
+     popupMenu.AppendSeparator();
+     popupMenu.Append(wxID_ANY, wxT("再読み込み"));
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_OnOpenImageByBrowser)); // ブラウザで開く
+     popupMenu.Append(wxID_ANY, wxT("外部ビューアで開く"));
+     popupMenu.Append(wxID_ANY, wxT("Windowsの関連付けで開く"));
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_OpenThreadGotImage));	// 参照元スレッドを開く
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_CopyImageURLToClipBoard));	// URLをコピー
+     popupMenu.AppendSeparator();
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_Rotate90AntiClockwise));	// 左回転
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_Rotate90Clockwise));		// 右回転
+     popupMenu.AppendSeparator();
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_ZoomIn));	// ズームイン
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_ZoomOut));	// ズームアウト
+     popupMenu.Append(wxID_ANY, wxT("ズーム変更"));
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_ResetImageOriginalSize));	// 元のサイズに戻す
+     popupMenu.AppendSeparator();
+     popupMenu.Append(wxID_ANY, wxT("ウィンドウに合わせて表示"));
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_CallViewerSettingWindow));	// ビューア設定
+     popupMenu.AppendSeparator();
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_SelectRightThumbnailTab));	// 次のタブ
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_SelectLeftThumbnailTab));	// 前のタブ
+     popupMenu.AppendSeparator();
+     popupMenu.Append(JaneCloneUiUtil::CreateMenuItemFromID(&popupMenu, ID_HideThumbnailTab));	// ビューアを隠す
 
      set_properties(title);
      do_layout();
@@ -264,64 +301,8 @@ void JaneCloneImageViewer::OnMouseWheel(wxMouseEvent& event)
  */
 void JaneCloneImageViewer::OnRightClickImageViewer(wxContextMenuEvent& event) {
 
-     wxMenu* tabs = new wxMenu();
-     tabs->Append(ID_OneThumbnailTabClose, wxT("このタブを閉じる"));
-     tabs->Append(wxID_ANY, wxT("エラーのタブを閉じる"));
-     tabs->AppendSeparator();
-     tabs->Append(wxID_ANY, wxT("このタブ以外を閉じる"));
-     tabs->Append(ID_AllThumbnailTabClose, wxT("すべてのタブを閉じる"));
-     tabs->Append(ID_AllLeftThumbnailTabClose, wxT("これより左を閉じる"));
-     tabs->Append(ID_AllRightThumbnailTabClose, wxT("これより右を閉じる"));
-     tabs->AppendSeparator();
-     tabs->Append(wxID_ANY, wxT("マーク/解除"));
-     tabs->Append(wxID_ANY, wxT("すべてマーク"));
-     tabs->Append(wxID_ANY, wxT("すべてマーク解除"));
-     tabs->AppendSeparator();
-     tabs->Append(ID_SaveAsImages, wxT("名前を付けて保存"));
-     tabs->Append(ID_SaveAsImagesAll, wxT("全て保存"));
-     tabs->AppendSeparator();
-     tabs->Append(wxID_ANY, wxT("再読み込み"));
-     tabs->Append(ID_OnOpenImageByBrowser, wxT("ブラウザで開く"));
-     tabs->Append(wxID_ANY, wxT("外部ビューアで開く"));
-     tabs->Append(wxID_ANY, wxT("Windowsの関連付けで開く"));
-     tabs->Append(ID_OpenThreadGotImage, wxT("参照元スレッドを開く"));
-     tabs->Append(ID_CopyImageURLToClipBoard, wxT("URLをコピー"));
-     tabs->AppendSeparator();
-     tabs->Append(ID_Rotate90AntiClockwise, wxT("左回転"));
-     tabs->Append(ID_Rotate90Clockwise,     wxT("右回転"));
-     tabs->AppendSeparator();
-     tabs->Append(ID_ZoomIn, wxT("ズームイン"));
-     tabs->Append(ID_ZoomOut, wxT("ズームアウト"));
-     tabs->Append(wxID_ANY, wxT("ズーム変更"));
-     tabs->Append(ID_ResetImageOriginalSize, wxT("元のサイズに戻す"));
-     tabs->AppendSeparator();
-     tabs->Append(wxID_ANY, wxT("ウィンドウに合わせて表示"));
-     tabs->Append(ID_CallViewerSettingWindow, wxT("ビューア設定"));
-     tabs->AppendSeparator();
-     tabs->Append(ID_SelectRightThumbnailTab, wxT("次のタブ"));
-     tabs->Append(ID_SelectLeftThumbnailTab, wxT("前のタブ"));
-     tabs->AppendSeparator();
-     tabs->Append(ID_HideThumbnailTab, wxT("ビューアを隠す"));
-
-     // タブが存在しない場合にタブ関連のメニューを無効化する
-     bool flag = thumbnailNoteBook->GetPageCount() > 0;
-
-     // タブ関連では*無い*IDのリスト
-     std::array<int, 2> nonTabOrientedId = {
-	  ID_CallViewerSettingWindow,
-	  ID_HideThumbnailTab,
-     };
-
-     for (wxMenuItem *item : tabs->GetMenuItems()) {
-	  if (std::find(nonTabOrientedId.begin(), nonTabOrientedId.end(),
-			item->GetId()) == nonTabOrientedId.end())
-	  {
-	       item->Enable(flag);
-	  }
-     }
-     
      // ポップアップメニューを表示させる
-     PopupMenu(tabs);
+     PopupMenu(&popupMenu);
 }
 /**
  * 画像タブをひとつ閉じる
