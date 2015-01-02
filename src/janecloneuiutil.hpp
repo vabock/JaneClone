@@ -55,6 +55,17 @@ public:
       * @param const wxString& message
       */
      void static SendLoggingHelper(const wxString& message);
+     /**
+      * IDからメニュー項目を作成
+      *
+      * @param wxMenu*	parent
+      * @param int	itemid
+      * @param const wxString& help
+      * @param const wxItemKind kind
+      */
+     static wxMenuItem* CreateMenuItemFromID(wxMenu* parent, int itemid,
+					     const wxString& help = wxEmptyString,
+					     wxItemKind kind = wxITEM_NORMAL);
 };
 
 #endif /* JANECLONEUIUTIL_HPP_ */

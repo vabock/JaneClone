@@ -22,6 +22,16 @@
 #include "janecloneuiutil.hpp"
 #include "janecloneutil.hpp"
 #include "janeclone.hpp"
+#include <wx/debug.h>
+#include <unordered_map>
+
+std::unordered_map<int, const wxChar*> enumLabels{
+#define X(Enum, String, Label) \
+     { Enum, Label },	       \
+
+     X_TABLE
+#undef X
+};
 
 /**
  * wxTreeCtrlのインスタンスを受け取って共通の設定を行う
@@ -144,3 +154,29 @@ void JaneCloneUiUtil::SendLoggingHelper(const wxString& message)
 {
      JaneCloneUiUtil::QueueEventHelper(wxEVT_COMMAND_TEXT_UPDATED, ID_Logging, message);
 };
+
+/**
+ * IDからメニュー項目を作成
+ *
+ * @param wxMenu*	parent
+ * @param int	itemid
+ * @param const wxString& help
+ * @param const wxItemKind kind
+ */
+wxMenuItem* JaneCloneUiUtil::CreateMenuItemFromID(wxMenu* parent, int itemid,
+						  const wxString& help, wxItemKind kind)
+{
+     wxString labelString;
+
+     auto label = enumLabels.find(itemid);
+
+     // 未登録IDの場合
+     wxASSERT(label != enumLabels.end());
+
+     if (label != enumLabels.end()) {
+	  labelString = label->second;
+     } else {
+     }
+
+     return new wxMenuItem(parent, itemid, labelString, help, kind);
+}
